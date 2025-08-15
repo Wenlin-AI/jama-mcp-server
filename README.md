@@ -1,10 +1,10 @@
 # Jama Connect MCP Server (Unofficial)
 
-This project provides a Model Context Protocol (MCP) server that exposes read-only tools for interacting with a Jama Connect instance. It acts as an MCP wrapper around the official [Jama Software `py-jama-rest-client`](https://github.com/JamaSoftware/py-jama-rest-client) library.
+This project provides a Model Context Protocol (MCP) server that exposes tools for interacting with a Jama Connect instance. It acts as an MCP wrapper around the official [Jama Software `py-jama-rest-client`](https://github.com/JamaSoftware/py-jama-rest-client) library.
 
 **Disclaimer:** This is a third-party, open-source project and is not officially affiliated with or endorsed by Jama Software.
 
-**Note:** This server currently only supports read-only operations. Write operations may be added in future updates.
+**Note:** The server is primarily read-focused but now includes a `create_jama_item` tool for posting new items. Additional write operations may be added in future updates.
 
 ## Philosophy: Local Execution & Security
 
@@ -189,7 +189,7 @@ Configure your MCP client (like Cline, RooCode, Claude Desktop) to launch this s
 
 ## Available Tools
 
-This server provides various read-only tools. See your MCP client interface for the full list after connecting. Examples include `get_jama_projects`, `get_jama_item`, `get_jama_relationships`, etc.
+This server provides various tools. See your MCP client interface for the full list after connecting. Examples include `get_jama_projects`, `get_jama_item`, `get_jama_relationships`, and `create_jama_item` for creating new items.
 
 ## License
 

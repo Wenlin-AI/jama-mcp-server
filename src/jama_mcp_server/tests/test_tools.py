@@ -2,10 +2,11 @@ import pytest
 from unittest.mock import MagicMock
 
 # Import the tool functions we want to test
-from jama_mcp.server import (
+from ..server import (
     get_jama_projects,
     get_jama_item,
-    get_jama_project_items
+    get_jama_project_items,
+    create_jama_item,
 )
 
 # --- Test Fixtures ---
@@ -154,3 +155,60 @@ async def test_get_jama_project_items_error(mock_context, mock_jama_client):
 
     # Assert
     mock_jama_client.get_items.assert_called_once_with(project_id=project_id_to_test)
+
+
+# --- Tool Tests for create_jama_item ---
+
+@pytest.mark.asyncio
+async def test_create_jama_item_success(mock_context, mock_jama_client):
+    """Test create_jama_item posts and returns the new item."""
+    item_fields = {"name": "New Requirement", "description": "Desc"}
+    new_id = 1001
+    created_item = {"id": new_id, "fields": item_fields}
+    mock_jama_client.post_item.return_value = new_id
+    mock_jama_client.get_item.return_value = created_item
+
+    result = await create_jama_item(
+        project_id="1",
+        item_type_id="10",
+        child_item_type_id="10",
+        parent_id="123",
+        fields=item_fields,
+        ctx=mock_context,
+    )
+
+    assert result == created_item
+    mock_jama_client.post_item.assert_called_once_with(
+        project="1",
+        item_type_id="10",
+        child_item_type_id="10",
+        location="123",
+        fields=item_fields,
+    )
+    mock_jama_client.get_item.assert_called_once_with(new_id)
+
+
+@pytest.mark.asyncio
+async def test_create_jama_item_error(mock_context, mock_jama_client):
+    """Test create_jama_item propagates exceptions from the client."""
+    item_fields = {"name": "Bad Requirement"}
+    mock_jama_client.post_item.side_effect = RuntimeError("Failure")
+
+    with pytest.raises(RuntimeError, match="Failure"):
+        await create_jama_item(
+            project_id="1",
+            item_type_id="10",
+            child_item_type_id="10",
+            parent_id="123",
+            fields=item_fields,
+            ctx=mock_context,
+        )
+
+    mock_jama_client.post_item.assert_called_once_with(
+        project="1",
+        item_type_id="10",
+        child_item_type_id="10",
+        location="123",
+        fields=item_fields,
+    )
+    mock_jama_client.get_item.assert_not_called()
