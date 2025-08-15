@@ -394,6 +394,38 @@ async def get_jama_pick_list_option(pick_list_option_id: str, ctx: Context) -> d
     return option
 
 @mcp.tool()
+async def create_jama_item(project_id: str, item_type_id: str, child_item_type_id: str, parent_id: str, fields: dict, ctx: Context) -> dict:
+    """
+    Create a new Jama item under a specified parent container.
+
+    Args:
+        project_id: The ID of the Jama project where the item will be created.
+        item_type_id: The item type ID of the new item.
+        child_item_type_id: The child item type ID (often the same as item_type_id).
+        parent_id: The ID of the parent item or container.
+        fields: A dictionary of field values for the new item.
+
+    Returns:
+        A dictionary representing the newly created item.
+
+    Raises:
+        APIException: If the Jama API call fails.
+    """
+    logger.info(
+        "Executing create_jama_item tool for project_id: %s, parent_id: %s", project_id, parent_id
+    )
+    jama_client: JamaClient = ctx.request_context.lifespan_context["jama_client"]
+    new_item_id = jama_client.post_item(
+        project=project_id,
+        item_type_id=item_type_id,
+        child_item_type_id=child_item_type_id,
+        location=parent_id,
+        fields=fields,
+    )
+    created_item = jama_client.get_item(new_item_id)
+    return created_item
+
+@mcp.tool()
 async def get_jama_tags(project_id: str, ctx: Context) -> list[dict]:
     """
     Retrieves all tags for a specific project.
